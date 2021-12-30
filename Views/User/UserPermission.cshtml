@@ -1,0 +1,195 @@
+﻿@model Crud_Operation.Models.UserPermission
+@{
+    ViewBag.Title = "User Permission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row my-5">
+
+    <div class="col-md-12 d-flex justify-content-between">
+
+        <h2 class="h2">User Permission</h2>
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#PermissionCreateModel">
+            <i class="fa fa-plus-circle mx-1"></i> Add
+        </button>
+
+    </div>
+
+    <div class="col-md-12 my-5">
+
+        <table class="table table-bordered table-responsive table-striped table-hover table-primary" id="UserPermissionTable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>User Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td colspan="3" align="center">No data found</td>
+                </tr>
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" align="center">
+                        <button type="button" class="btn btn-danger" onclick="//deleteUserRoleConfirmation()">Delete All User Permissions</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="PermissionCreateModel" tabindex="-1" aria-labelledby="PermissionModelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="PermissionModelLabel">Create Role Permission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                @using (Html.BeginForm(FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+
+                        <div class="col-md-12" id="formCheckBoxContainer">                            
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="savePermission" class="btn btn-success">Save</button>
+                <button type="reset" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#PermissionCreateModel').on('show.bs.modal', function (e) {
+
+                var token = $('input[name=__RequestVerificationToken]').val();
+
+                var headers = { __RequestVerificationToken: token };
+
+                $.ajax({
+                    headers: headers,
+                    type: "POST",
+                    url: '@Url.Action("UserPermissionRoleTypeList", "User", new {area = ""})',
+                    data: { __RequestVerificationToken: token },
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (res) {
+                        if (res.hasOwnProperty("response")) {
+                            var html = "";
+                            var temp_div_id = "";
+                            console.log(res);
+                            res.response.forEach(function (i) {
+
+                                if (i.Levels == "level 1") {
+                                    html = '<div id="level_1" class="form-check mainroleid-' + i.MainRoleId + ' roleid-' + i.RoleId + '">';
+                                    html += '<input class="form-check-input" type="checkbox" value="" id="roleid-' + i.RoleId + '" name="roleid-' + i.RoleId + '" data-mainroleid="' + i.MainRoleId + '" data-roleid="' + i.RoleId + '" >';
+                                    html += '<label class="form-check-label" for= "mainroleid-' + i.MainRoleId + '" >' + i.RoleName + '</label >';
+                                    html += '</div>';
+
+                                    html += '<div id="roleid_' + i.RoleId + '_level_2"  class="d-flex justify-content-between mx-3 mb-5">';
+                                    html += '</div>';
+
+                                    temp_div_id = 'roleid_' + i.RoleId + '_level_2';
+                                    $("#formCheckBoxContainer").append(html);
+                                } else {
+
+
+                                    html = '<div class="form-check">';
+                                    html += '<input class="form-check-input" type = "checkbox" value = "" id = "roleid-' + i.RoleId + '" name="roleid-' + i.RoleId + '" data-mainroleid="' + i.MainRoleId + '" data-roleid="' + i.RoleId + '">';
+                                    html += '<label class="form-check-label" for="roleid-' + i.RoleId + '">' + i.RoleName + '</label>';
+                                    html += '</div>';
+
+                                    $("#" + temp_div_id).append(html);
+                                }
+
+                            });
+                        } else {
+                            console.log("error");
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert("Something went wrong");
+                    },
+                    complete: function (res) {
+
+                        $('input[data-mainroleid]').change(function (e) {
+                            var x = $(this).attr('data-roleid');
+                            if ($('input[data-roleid="' + x + '"]').prop('checked')) {
+                                $('input[data-mainroleid="' + x + '"]').prop('checked', true);
+                            } else {
+                                $('input[data-mainroleid="' + x + '"]').prop('checked', false);
+                            }
+                        });
+
+                        $('input[data-roleid]').change(function (e) {
+                            var x = $(this).attr('data-mainroleid');
+                            if ($(this).prop('checked')) {
+                                $('input[data-roleid="' + x + '"]').prop('checked', true);
+                            } else if ($('input[data-mainroleid="' + x + '"]:checked').length == 0) {
+                                $('input[data-roleid="' + x + '"]').prop('checked', false);
+                            }
+                        });
+
+                    }
+                });
+
+            });
+
+            $('#savePermission').on('click', function (e) {
+
+                var checked = $('input[data-roleid]:checked').serializeArray();
+
+                var token = $('input[name=__RequestVerificationToken]').val();
+
+                var headers = { __RequestVerificationToken: token };
+
+
+                checked.push({ '__RequestVerificationToken': token });
+
+                console.log(typeof checked, checked);
+
+
+                $.ajax({
+                    headers: headers,
+                    type: "POST",
+                    url: '@Url.Action("UserPermissionCreate", "User", new {area = ""})',
+                    data: { __RequestVerificationToken: token, checked: checked },
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (res) {
+                        console.log(res);
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert("Something went wrong");
+                    }
+                });
+
+            });
+
+        });
+    </script>
+}

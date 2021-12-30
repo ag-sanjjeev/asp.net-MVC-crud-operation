@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="testdbsanModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="UserPermissions">
+          <Key>
+            <PropertyRef Name="PermissionId" />
+          </Key>
+          <Property Name="PermissionId" Type="tinyint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="RoleId" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserRoleTypes">
+          <Key>
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="RoleId" Type="tinyint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleName" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="MainRoleId" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Username" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Password" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Activestatus" Type="int" Nullable="false" />
+          <Property Name="Created_at" Type="datetime2" Precision="7" />
+          <Property Name="Modified_at" Type="datetime2" Precision="7" />
+          <Property Name="IpAddress" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Hash" Type="nvarchar(max)" />
+          <Property Name="Salt" Type="nvarchar(max)" />
+        </EntityType>
+        <Association Name="FK_UserPermissions_UserRoleTypes">
+          <End Role="UserRoleTypes" Type="Self.UserRoleTypes" Multiplicity="1" />
+          <End Role="UserPermissions" Type="Self.UserPermissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserRoleTypes">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="UserPermissions">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserPermissions_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="UserPermissions" Type="Self.UserPermissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="UserPermissions">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="UserRoleTypesListHeirarchy" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <EntityContainer Name="testdbsanModelStoreContainer">
+          <EntitySet Name="UserPermissions" EntityType="Self.UserPermissions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserRoleTypes" EntityType="Self.UserRoleTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_UserPermissions_UserRoleTypes" Association="Self.FK_UserPermissions_UserRoleTypes">
+            <End Role="UserRoleTypes" EntitySet="UserRoleTypes" />
+            <End Role="UserPermissions" EntitySet="UserPermissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserPermissions_Users" Association="Self.FK_UserPermissions_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UserPermissions" EntitySet="UserPermissions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="testdbsanModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="testdbsanEntities" annotation:LazyLoadingEnabled="true" >
+          <EntitySet Name="UserPermissions" EntityType="testdbsanModel.UserPermission" />
+          <EntitySet Name="UserRoleTypes" EntityType="testdbsanModel.UserRoleType" />
+          <EntitySet Name="Users" EntityType="testdbsanModel.User" />
+          <AssociationSet Name="FK_UserPermissions_UserRoleTypes" Association="testdbsanModel.FK_UserPermissions_UserRoleTypes">
+            <End Role="UserRoleType" EntitySet="UserRoleTypes" />
+            <End Role="UserPermission" EntitySet="UserPermissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserPermissions_Users" Association="testdbsanModel.FK_UserPermissions_Users">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserPermission" EntitySet="UserPermissions" />
+          </AssociationSet>
+          <FunctionImport Name="UserRoleTypesListHeirarchy" ReturnType="Collection(testdbsanModel.UserRoleTypesListHeirarchy_Result)" />
+        </EntityContainer>
+        <EntityType Name="UserPermission">
+          <Key>
+            <PropertyRef Name="PermissionId" />
+          </Key>
+          <Property Name="PermissionId" Type="Byte" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="RoleId" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="UserRoleType" Relationship="testdbsanModel.FK_UserPermissions_UserRoleTypes" FromRole="UserPermission" ToRole="UserRoleType" />
+          <NavigationProperty Name="User" Relationship="testdbsanModel.FK_UserPermissions_Users" FromRole="UserPermission" ToRole="User" />
+        </EntityType>
+        <EntityType Name="UserRoleType">
+          <Key>
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="RoleId" Type="Byte" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleName" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MainRoleId" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="UserPermissions" Relationship="testdbsanModel.FK_UserPermissions_UserRoleTypes" FromRole="UserRoleType" ToRole="UserPermission" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Activestatus" Type="Int32" Nullable="false" />
+          <Property Name="Created_at" Type="DateTime" Precision="7" />
+          <Property Name="Modified_at" Type="DateTime" Precision="7" />
+          <Property Name="IpAddress" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Hash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Salt" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="UserPermissions" Relationship="testdbsanModel.FK_UserPermissions_Users" FromRole="User" ToRole="UserPermission" />
+        </EntityType>
+        <Association Name="FK_UserPermissions_UserRoleTypes">
+          <End Type="testdbsanModel.UserRoleType" Role="UserRoleType" Multiplicity="1" />
+          <End Type="testdbsanModel.UserPermission" Role="UserPermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserRoleType">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="UserPermission">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserPermissions_Users">
+          <End Type="testdbsanModel.User" Role="User" Multiplicity="1" />
+          <End Type="testdbsanModel.UserPermission" Role="UserPermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="UserPermission">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="UserRoleTypesListHeirarchy_Result">
+          <Property Type="String" Name="RoleName" Nullable="false" />
+          <Property Type="Byte" Name="RoleId" Nullable="false" />
+          <Property Type="String" Name="Levels" Nullable="false" MaxLength="7" />
+          <Property Type="Byte" Name="MainRoleId" Nullable="false" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="testdbsanModelStoreContainer" CdmEntityContainer="testdbsanEntities" >
+          <EntitySetMapping Name="UserPermissions">
+            <EntityTypeMapping TypeName="testdbsanModel.UserPermission">
+              <MappingFragment StoreEntitySet="UserPermissions">
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="PermissionId" ColumnName="PermissionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserRoleTypes">
+            <EntityTypeMapping TypeName="testdbsanModel.UserRoleType">
+              <MappingFragment StoreEntitySet="UserRoleTypes">
+                <ScalarProperty Name="MainRoleId" ColumnName="MainRoleId" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="testdbsanModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="Salt" ColumnName="Salt" />
+                <ScalarProperty Name="Hash" ColumnName="Hash" />
+                <ScalarProperty Name="IpAddress" ColumnName="IpAddress" />
+                <ScalarProperty Name="Modified_at" ColumnName="Modified_at" />
+                <ScalarProperty Name="Created_at" ColumnName="Created_at" />
+                <ScalarProperty Name="Activestatus" ColumnName="Activestatus" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="UserRoleTypesListHeirarchy" FunctionName="testdbsanModel.Store.UserRoleTypesListHeirarchy">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="testdbsanModel.UserRoleTypesListHeirarchy_Result">
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="Levels" ColumnName="Levels" />
+                <ScalarProperty Name="MainRoleId" ColumnName="MainRoleId" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

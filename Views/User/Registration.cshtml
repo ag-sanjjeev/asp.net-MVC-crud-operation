@@ -1,0 +1,91 @@
+﻿@model Crud_Operation.Models.User
+@{
+    ViewBag.Title = "Registration";
+    Layout = "~/Views/Shared/_LayoutUnAuthorize.cshtml";
+    var error = ViewData["error"] as string;
+    var success = ViewData["success"] as string;
+}
+
+<div class="h-100 d-flex justify-content-center align-items-center" style="height: 100vh !important;">
+
+
+    @using (Html.BeginForm("RegisterUser", "User", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken();
+
+    <div class="row" style="max-width: 300px;">
+
+        @if (!String.IsNullOrEmpty(error))
+        {
+            <div class="col-md-12 mb-3">
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+                    <div>
+                        @error
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+            </div>
+        }
+        else if (!String.IsNullOrEmpty(success))
+        {
+            <div class="col-md-12 mb-3">
+
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+                    <div>
+                        @success
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+            </div>
+        }
+
+
+        <div class="col-md-12 mb-3">
+            <h2 class="h2 text-center">@ViewBag.Title</h2>
+            <hr />
+        </div>
+
+        <div class="col-md-12 mb-3">
+
+            @Html.LabelFor(m => m.Username)
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Username, null, new { @class = "form-control", @id = "username", @required = "true", @autofocus = "true", @placeholder = "Enter your user name" })
+            </div>
+
+        </div>
+
+        <div class="col-md-12 mb-3">
+            @Html.LabelFor(m => m.Password)
+            <div class="form-group">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", @id = "password", @required = "true", @placeholder = "Enter your password" })
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-3">
+            @Html.Label("Confirmpassword")
+            <div class="form-group">
+                @Html.Password("Confirmpassword", null, new { @class = "form-control", @id = "confirmpassword", @required = "true", @placeholder = "Confirm your password" })
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3 d-flex justify-content-around">
+
+            <button type="submit" class="btn btn-success">Register</button>
+            <button type="reset" class="btn btn-warning">Reset</button>
+
+        </div>
+
+        <div class="col-md-12 my-3">
+            <p class="text-center">Already having account let's @Html.ActionLink("Login", "Login", "User", null, new { @class = "btn" })</p>
+        </div>
+
+    </div>
+    }
+
+</div>
+

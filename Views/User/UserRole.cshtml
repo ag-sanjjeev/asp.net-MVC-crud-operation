@@ -1,0 +1,269 @@
+﻿@model Crud_Operation.Models.UserRoleType
+@{
+    ViewBag.Title = "UserRole";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+}
+
+<div class="row my-5">
+
+    <div class="col-md-12 d-flex justify-content-between">
+
+        <h2 class="h2">User Role</h2>
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#RoleTypeCreateModel">
+            <i class="fa fa-plus-circle mx-1"></i> Add
+        </button>
+
+    </div>
+
+    <div class="col-md-12 my-5">
+
+        <table class="table table-bordered table-responsive table-striped table-hover table-primary" id="UserRoleTypeTable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Main Role</th>
+                    <th>Role Type</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td colspan="3" align="center">No data found</td>
+                </tr>
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" align="center">
+                        <button type="button" class="btn btn-danger" onclick="deleteUserRoleConfirmation()">Delete All User Role</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="RoleTypeCreateModel" tabindex="-1" aria-labelledby="RoleTypeModelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RoleTypeModelLabel">Create Role Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                @using (Html.BeginForm(FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.MainRoleId, null, new { @class = "form-label" })
+                            <div class="form-group">
+                                <select name="MainRoleId" id="MainRoleId" class="form-control" required autofocus>
+                                    @foreach (var item in ViewBag.MainRoles)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.RoleName, null, new { @class = "form-label" })
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.RoleName, new { @class = "form-control", @id = "RoleName", @required = "true", @placeholder = "Enter new role name" })
+                            </div>
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveRoleType" class="btn btn-success">Save</button>
+                <button type="reset" class="btn btn-warning" data-bs-dismiss="modal" id="modelCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            getUserRoleTypeList();
+
+            var RoleTypeCreateModel = $('#RoleTypeCreateModel');
+            RoleTypeCreateModel.on('show.bs.modal', function (e) {
+
+                GetAllUserRoleMain();
+
+            });
+
+            $('#saveRoleType').on('click', function (e) {
+                var MainRoleId = $('#MainRoleId').find(':selected').val();
+                var RoleName = $('#RoleName').val();
+                var token = $('input[name=__RequestVerificationToken]').val();
+
+                var headers = { __RequestVerificationToken: token };
+
+                $.ajax({
+                    headers: headers,
+                    type: "POST",
+                    url: '@Url.Action("UserRoleCreate", "User", new {area = ""})',
+                    data: { __RequestVerificationToken: token, MainRoleId: MainRoleId, RoleName: RoleName },
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (res) {
+                        if (typeof res == "object") {
+                            obj = res;
+                        } else {
+                            var obj = JSON.stringify(res);
+                            var obj = JSON.parse(obj);
+                        }
+
+                        if (obj.responseType == "error") {
+                            alert(obj.response);
+                        } else if (obj.responseType == "success") {
+                            alert(obj.response);
+                            GetAllUserRoleMain();
+                            getUserRoleTypeList();
+                            $('.model #modelCloseBtn').click();
+                        } else {
+                            alert("Something went wrong");
+                        }
+
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert("Something went wrong");
+                    }
+                });
+
+            });
+
+
+
+        });
+
+        function GetAllUserRoleMain() {
+            var token = $('input[name=__RequestVerificationToken]').val();
+
+            var headers = { __RequestVerificationToken: token };
+
+            $.ajax({
+                headers: headers,
+                type: "POST",
+                url: '@Url.Action("GetAllUserRoleMain", "User", new {area = ""})',
+                data: { __RequestVerificationToken: token },
+                dataType: 'json',
+                traditional: true,
+                success: function (res) {
+                    console.log(res);
+
+                    $("form #MainRoleId").empty();
+
+                    if (res.hasOwnProperty("initialoption")) {
+
+                        $("form #MainRoleId").append('<option value="' + res.initialoption.value + '">' + res.initialoption.text + '</option>');
+
+                    }
+
+                    if (res.hasOwnProperty("options")) {
+
+                        res.options.forEach(function (e) {
+                            $("form #MainRoleId").append('<option value="' + e.RoleId + '">' + e.RoleName + '</option>');
+                        });
+
+                    }
+
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert("Something went wrong");
+                }
+            });
+        }
+
+        function getUserRoleTypeList() {
+
+            var token = $('input[name=__RequestVerificationToken]').val();
+
+            var headers = { __RequestVerificationToken: token };
+
+            $.ajax({
+                headers: headers,
+                type: "POST",
+                url: '@Url.Action("GetUserRoleTypeList", "User", new {area = ""})',
+                data: { __RequestVerificationToken: token },
+                dataType: 'json',
+                traditional: true,
+                success: function (res) {
+                    $('#UserRoleTypeTable tbody').empty();
+                    if (res.hasOwnProperty("response")) {
+                        var html = '';
+                        var j = 1;
+
+                        res.response.forEach(function (i) {
+                            html += '<tr>';
+                            html += '<td>' + j + '</td>';
+                            html += '<td>' + i.MainRole + '</td>';
+                            html += '<td>' + i.RoleName + '</td>';
+                            html += '</tr>';
+                            j++;
+                        });
+
+                        $('#UserRoleTypeTable tbody').append(html);
+                    } else {
+                        $('#UserRoleTypeTable tbody').append("<tr><td colspan='3' align='center'>No data found</td></tr>");
+                    }
+
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert("Something went wrong");
+                }
+            });
+        }
+
+        function deleteUserRoleConfirmation() {
+            if (confirm("Are you sure want delete all user role?")) {
+
+                var token = $('input[name=__RequestVerificationToken]').val();
+
+                var headers = { __RequestVerificationToken: token };
+
+                $.ajax({
+                    headers: headers,
+                    type: "POST",
+                    url: '@Url.Action("DeleteUserRoleTypeList", "User", new {area = ""})',
+                    data: { __RequestVerificationToken: token },
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (res) {
+                        $('#UserRoleTypeTable tbody').empty();
+                        if (res.hasOwnProperty("response")) {
+                            console.log(res.response);
+                            alert(res.response);
+                            getUserRoleTypeList();
+                        } else {
+                            alert("Something went wrong");
+                        }
+
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert("Something went wrong");
+                    }
+                });
+            }
+        }
+    </script>
+}
